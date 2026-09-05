@@ -54,6 +54,6 @@ app.get("*splat", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`砍一刀AI running at http://localhost:${port}`);
 });
