@@ -10,6 +10,7 @@ const client = new OpenAI({
 });
 
 app.use(express.json({ limit: "2mb" }));
+app.use(express.static(__dirname));
 
 // 首页：index.html 在项目根目录
 app.get("/", (req, res) => {
