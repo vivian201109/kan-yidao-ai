@@ -1,0 +1,13 @@
+{
+  "name": "kan-yi-dao-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "砍一刀AI — AI chat website",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "openai": "^5.12.0"
+  }
+}

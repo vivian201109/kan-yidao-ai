@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>砍一刀AI — 聪明一点的 AI</title>
+  <meta name="description" content="砍一刀AI：聪明、直接、可靠的 AI 助手。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --panel: rgba(255,255,255,.84);
+      --text: #18181b;
+      --muted: #71717a;
+      --line: #e7e7e4;
+      --accent: #111111;
+      --bubble: #f0f0ed;
+      --shadow: 0 20px 70px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--text);
+      background: radial-gradient(circle at 50% -10%, #fff 0, var(--bg) 45%);
+      font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+    }
+    button, textarea { font: inherit; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 260px 1fr; }
+    aside {
+      border-right: 1px solid var(--line); padding: 18px 14px;
+      background: rgba(255,255,255,.55); backdrop-filter: blur(18px);
+    }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:20px; padding: 8px 10px 20px; }
+    .logo {
+      width: 34px; height:34px; border-radius: 11px; background:#111; color:#fff;
+      display:grid; place-items:center; font-size:19px; box-shadow: 0 6px 18px rgba(0,0,0,.16);
+    }
+    .new {
+      width:100%; border:1px solid var(--line); background:#fff; border-radius:12px;
+      padding:11px 13px; cursor:pointer; font-weight:600; text-align:left;
+    }
+    .new:hover { background:#fafafa; }
+    .side-note { color:var(--muted); font-size:12px; line-height:1.6; padding:16px 10px; }
+    main { min-width:0; display:flex; flex-direction:column; height:100vh; }
+    header {
+      height:64px; display:flex; align-items:center; justify-content:space-between;
+      padding:0 24px; border-bottom:1px solid rgba(231,231,228,.8);
+      background:rgba(255,255,255,.42); backdrop-filter:blur(18px);
+    }
+    .title { font-weight:700; }
+    .status { color:#71717a; font-size:12px; display:flex; gap:7px; align-items:center; }
+    .dot { width:7px; height:7px; border-radius:50%; background:#22c55e; }
+    #messages { flex:1; overflow:auto; padding: 42px 20px 150px; }
+    .welcome { max-width: 780px; margin: 9vh auto 0; text-align:center; }
+    .welcome .big-logo { width:70px;height:70px;margin:auto;border-radius:22px;background:#111;color:#fff;display:grid;place-items:center;font-size:38px;box-shadow:var(--shadow); }
+    h1 { font-size: clamp(30px, 5vw, 50px); margin:20px 0 10px; letter-spacing:-.04em; }
+    .subtitle { color:var(--muted); font-size:16px; }
+    .chips { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:28px; }
+    .chip { border:1px solid var(--line); background:#fff; padding:10px 13px; border-radius:999px; cursor:pointer; }
+    .chip:hover { transform:translateY(-1px); box-shadow:0 5px 15px rgba(0,0,0,.05); }
+    .row { max-width: 840px; margin: 0 auto 25px; display:flex; gap:12px; }
+    .row.user { justify-content:flex-end; }
+    .avatar { flex:0 0 34px; height:34px; border-radius:11px; background:#111; color:#fff; display:grid; place-items:center; font-size:17px; }
+    .row.user .avatar { display:none; }
+    .bubble { max-width: min(720px, 82%); padding:13px 16px; border-radius:18px; line-height:1.7; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .assistant .bubble { background:#fff; border:1px solid var(--line); box-shadow:0 7px 24px rgba(0,0,0,.035); }
+    .user .bubble { background:#111; color:#fff; }
+    .composer-wrap { position:fixed; left:260px; right:0; bottom:0; padding:20px 20px 24px; background:linear-gradient(transparent, rgba(247,247,245,.94) 30%); }
+    .composer { max-width:840px; margin:auto; background:#fff; border:1px solid #dcdcd8; border-radius:20px; padding:10px 10px 10px 16px; box-shadow:0 14px 45px rgba(0,0,0,.09); display:flex; align-items:flex-end; gap:10px; }
+    textarea { flex:1; border:0; outline:0; resize:none; max-height:160px; min-height:28px; background:transparent; padding:5px 0; line-height:1.5; }
+    .send { width:42px;height:42px;border:0;border-radius:14px;background:#111;color:#fff;cursor:pointer;font-size:18px; }
+    .send:disabled { opacity:.35; cursor:default; }
+    .hint { max-width:840px;margin:8px auto 0;text-align:center;font-size:11px;color:#9a9a9a; }
+    .typing { display:inline-flex; gap:4px; align-items:center; }
+    .typing i { width:5px;height:5px;border-radius:50%;background:#999; animation:b 1s infinite; }
+    .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+    @keyframes b { 0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }
+    @media(max-width: 720px) {
+      .app { grid-template-columns: 1fr; }
+      aside { display:none; }
+      .composer-wrap { left:0; padding:12px 10px 16px; }
+      header { padding:0 15px; }
+      #messages { padding-left:12px;padding-right:12px; }
+      .bubble { max-width:90%; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><div class="logo">🗡</div>砍一刀AI</div>
+    <button class="new" id="newChat">＋ 新建聊天</button>
+    <div class="side-note">你的私人 AI 助手<br>Powered by GPT-5.6 Luna</div>
+  </aside>
+
+  <main>
+    <header>
+      <div class="title">砍一刀</div>
+      <div class="status"><span class="dot"></span> 在线</div>
+    </header>
+
+    <section id="messages">
+      <div class="welcome" id="welcome">
+        <div class="big-logo">🗡</div>
+        <h1>有什么问题，砍一刀就知道。</h1>
+        <div class="subtitle">聪明一点 · 直接一点 · 好用一点</div>
+        <div class="chips">
+          <button class="chip" data-prompt="帮我制定一个高效的学习计划">📚 帮我制定学习计划</button>
+          <button class="chip" data-prompt="帮我写一个漂亮的个人网站">💻 写一个网站</button>
+          <button class="chip" data-prompt="解释一下人工智能是怎么工作的，要通俗易懂">🧠 解释一个复杂问题</button>
+          <button class="chip" data-prompt="给我想 10 个有创意的创业点子">💡 头脑风暴</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="composer-wrap">
+      <form class="composer" id="form">
+        <textarea id="input" rows="1" placeholder="问砍一刀任何问题…"></textarea>
+        <button class="send" id="send" type="submit">↑</button>
+      </form>
+      <div class="hint">砍一刀可能会犯错，请核实重要信息。</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const messagesEl = document.getElementById("messages");
+  const welcome = document.getElementById("welcome");
+  const input = document.getElementById("input");
+  const send = document.getElementById("send");
+  const form = document.getElementById("form");
+  const newChat = document.getElementById("newChat");
+  let history = [];
+
+  function addMessage(role, text, temporary=false) {
+    welcome.style.display = "none";
+    const row = document.createElement("div");
+    row.className = "row " + role;
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = "🗡";
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;
+    if (temporary) {
+      bubble.innerHTML = '<span class="typing"><i></i><i></i><i></i></span>';
+      row.dataset.typing = "1";
+    }
+    if (role === "assistant") row.appendChild(avatar);
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return row;
+  }
+
+  async function sendMessage(text) {
+    text = text.trim();
+    if (!text || send.disabled) return;
+    addMessage("user", text);
+    history.push({role:"user", content:text});
+    input.value = "";
+    input.style.height = "auto";
+    send.disabled = true;
+    const typing = addMessage("assistant", "", true);
+
+    try {
+      const r = await fetch("/api/chat", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({messages:history})
+      });
+      const data = await r.json();
+      typing.remove();
+      if (!r.ok) throw new Error(data.error || "请求失败");
+      addMessage("assistant", data.text);
+      history.push({role:"assistant", content:data.text});
+    } catch (e) {
+      typing.remove();
+      addMessage("assistant", "抱歉，出错了：\n" + e.message);
+    } finally {
+      send.disabled = false;
+      input.focus();
+    }
+  }
+
+  form.addEventListener("submit", e => { e.preventDefault(); sendMessage(input.value); });
+  input.addEventListener("input", () => {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 160) + "px";
+  });
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+  });
+  document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => sendMessage(c.dataset.prompt)));
+  newChat.addEventListener("click", () => {
+    history = [];
+    messagesEl.innerHTML = "";
+    messagesEl.appendChild(welcome);
+    welcome.style.display = "";
+    input.focus();
+  });
+</script>
+</body>
+</html>
